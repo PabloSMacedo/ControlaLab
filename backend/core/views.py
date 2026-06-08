@@ -3,6 +3,8 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.contrib.auth import authenticate
+from django.contrib.auth import login as auth_login
+from django.contrib.auth import logout as auth_logout
 from django.views.decorators.csrf import csrf_exempt
 from .models import *
 
@@ -40,6 +42,7 @@ def login(request):
 
     if user:
 
+        auth_login(request, user)
 
         return JsonResponse({
             "success": True,
@@ -56,6 +59,15 @@ def login(request):
 
 @csrf_exempt
 def cadastrar_equipamento(request):
+
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Usuário não autenticado"
+            },
+            status=401
+        )
 
     if request.method != "POST":
         return JsonResponse(    
@@ -77,6 +89,14 @@ def cadastrar_equipamento(request):
     })
 
 def listar_equipamentos(request):
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Usuário não autenticado"
+            },
+            status=401
+        )
 
     if request.method != "GET":
         return JsonResponse(
@@ -85,7 +105,6 @@ def listar_equipamentos(request):
         )
     
     equipamentos = Equipamento.objects.all()
-    
     dados = []
 
     for equipamento in equipamentos:
@@ -93,13 +112,21 @@ def listar_equipamentos(request):
             "id": equipamento.id,
             "nome": equipamento.nome,
             "patrimonio": equipamento.patrimonio,
-            "localizaçao": equipamento.localizacao,
+            "localizacao": equipamento.localizacao,
             "status": equipamento.status
-
         })
 
     return JsonResponse(
         dados,
         safe=False
     )
-    
+
+@csrf_exempt
+def logout(request):
+
+    auth_logout(request)
+
+    return JsonResponse({
+        "success": True,
+        "message": "Logout realizado"
+    })
