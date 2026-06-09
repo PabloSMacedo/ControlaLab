@@ -16,13 +16,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from core.views import home
+from core.views import *
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', home, name='home'),
     path('', home),
+
+#abaixo esta o endpoint de login e logout.#
+    path("api/login/", login),
+    path("api/logout/", logout),
+
+#Abaixo esta o endpoint relacionado aos equipamentos.#
+    path("api/equipamentos/cadastrar/", cadastrar_equipamento),
+    path("api/equipamentos/", listar_equipamentos),
 
 ]
 
