@@ -10,59 +10,51 @@ O objetivo é substituir controles manuais realizados em planilhas, centralizand
 
 ## Integrantes
 
-* Pablo Macedo
-* Elionai
-* Eduardo
-* Elisa
-* Camile
+- Pablo Macedo
+- Elionai
+- Eduardo
+- Elisa
+- Camile
 
 ---
 
 ## Tecnologias Utilizadas
 
 ### Backend
-
-* Python 3.14.5
-* Django 6.0.5
-* Psycopg 3.3.4
+- Python 3.14.5
+- Django 6.0.5
+- Psycopg 3.3.4
 
 ### Frontend
-
-* React
-* Axios
+- React
+- Axios
 
 ### Banco de Dados
-
-* PostgreSQL 17+
+- PostgreSQL 17+
 
 ### Versionamento
-
-* Git
-* GitHub
+- Git
+- GitHub
 
 ---
 
 ## Funcionalidades
 
 ### RF01 - Login e Controle de Acesso
-
 Permitir autenticação e gerenciamento de usuários.
 
 ### RF02 - Cadastro de Equipamentos
-
 Permitir cadastro e consulta dos equipamentos laboratoriais.
 
 ### RF03 - Registro de Manutenções
-
 Permitir registro de manutenções preventivas e corretivas.
 
 ### RF04 - Agendamento de Manutenções
-
 Permitir planejamento e acompanhamento das manutenções.
 
 ### RF05 - Relatórios
-
 Gerar relatórios de equipamentos e histórico de manutenções.
+
 
 ---
 
@@ -82,10 +74,9 @@ Instalar os seguintes softwares:
 
 ## Clonando o Projeto
 
-```bash
-git clone <URL_DO_REPOSITORIO>
-cd ControlaLab
-```
+`git clone <URL_DO_REPOSITORIO>`
+
+`cd ControlaLab`
 
 ---
 
@@ -93,109 +84,96 @@ cd ControlaLab
 
 Criar o banco PostgreSQL:
 
-```sql
-CREATE DATABASE controlaLab;
-```
+`CREATE DATABASE controlaLab;`
 
-Configurar as credenciais no arquivo:
-
-```text
-backend/config/settings.py
-```
+Configurar as credenciais no arquivo `backend/config/settings.py`.
 
 Exemplo:
 
-```python
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'controlaLab',
-        'USER': 'postgres',
-        'PASSWORD': 'sua_senha',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
-```
+`DATABASES = {`
+`    'default': {`
+`        'ENGINE': 'django.db.backends.postgresql',`
+`        'NAME': 'controlaLab',`
+`        'USER': 'postgres',`
+`        'PASSWORD': 'sua_senha',`
+`        'HOST': 'localhost',`
+`        'PORT': '5432',`
+`    }`
+`}`
 
 ---
 
 ## Instalação do Backend
 
-```bash
-cd backend
+`cd backend`
 
-pip install -r requirements.txt
-```
+`pip install -r requirements.txt`
 
 ---
 
 ## Criação das Tabelas
 
-```bash
-python manage.py makemigrations
+`python manage.py makemigrations`
 
-python manage.py migrate
-```
+`python manage.py migrate`
 
 ---
 
 ## Criação do Usuário Administrador
 
-```bash
-python manage.py createsuperuser
-```
+`python manage.py createsuperuser`
+
+Exemplo de preenchimento:
+
+`Username: admin`
+
+`Email: admin@controlalab.com`
+
+`Password: 123456`
+
+---
+
+## Credenciais de Teste
+
+Usuário: `admin`  
+Senha: `123456`
+
+Acesso ao painel administrativo: `http://127.0.0.1:8000/admin`
 
 ---
 
 ## Execução do Backend
 
-```bash
-python manage.py runserver
-```
+`python manage.py runserver`
 
-A aplicação estará disponível em:
+A aplicação estará disponível em: `http://127.0.0.1:8000`
 
-```text
-http://127.0.0.1:8000
-```
-
-Painel administrativo:
-
-```text
-http://127.0.0.1:8000/admin
-```
+Painel administrativo: `http://127.0.0.1:8000/admin`
 
 ---
 
 ## Instalação do Frontend
 
-```bash
-cd frontend
+`cd frontend`
 
-npm install
-```
+`npm install`
 
 ---
 
 ## Execução do Frontend
 
-```bash
-npm run dev
-```
+`npm run dev`
 
 ---
 
 ## Dependências Python
 
-```text
-asgiref==3.11.1
-Django==6.0.5
-psycopg==3.3.4
-psycopg-binary==3.3.4
-sqlparse==0.5.5
-tzdata==2026.2
-```
+- asgiref==3.11.1
+- Django==6.0.5
+- psycopg==3.3.4
+- psycopg-binary==3.3.4
+- sqlparse==0.5.5
+- tzdata==2026.2
 
 ---
 
@@ -203,9 +181,9 @@ tzdata==2026.2
 
 O projeto utiliza Git Flow simplificado.
 
-* main: versões estáveis.
-* develop: integração das funcionalidades.
-* feature/*: desenvolvimento de novas funcionalidades.
+- `main`: versões estáveis.
+- `develop`: integração das funcionalidades.
+- `feature/*`: desenvolvimento de novas funcionalidades.
 
 As alterações passam por revisão antes da integração à branch principal.
 
@@ -213,16 +191,13 @@ As alterações passam por revisão antes da integração à branch principal.
 
 ## Estrutura do Projeto
 
-```text
 ControlaLab/
-│
-├── backend/
-├── frontend/
-├── docs/
-├── .github/
-├── README.md
-└── LICENSE
-```
+- backend/
+- frontend/
+- docs/
+- .github/
+- README.md
+- LICENSE
 
 ---
 
