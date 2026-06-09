@@ -2,9 +2,14 @@ name: Django CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+      - develop
+
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
+      - develop
 
 jobs:
   build:
@@ -25,6 +30,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r backend/requirements.txt
-    - name: Run Tests
+    - name: Django Check
       run: |
         python backend/manage.py check
