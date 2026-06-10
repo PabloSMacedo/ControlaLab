@@ -34,6 +34,18 @@ def login(request):
     username = dados.get("username")
     password = dados.get("password")
 
+    if not username:
+        return JsonResponse(
+            {"erro": "Usuário obrigatório"},
+            status=400
+        )
+
+    if not password:
+        return JsonResponse(
+            {"erro": "Senha obrigatória"},
+            status=400
+        )    
+
     user = authenticate(
         request,
         username=username,
@@ -58,6 +70,25 @@ def login(request):
     )
 
 @csrf_exempt
+def logout(request):
+
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Usuário não autenticado"
+            },
+            status=401
+        )
+
+    auth_logout(request)
+
+    return JsonResponse({
+        "success": True,
+        "message": "Logout realizado"
+    })
+
+@csrf_exempt
 def cadastrar_equipamento(request):
 
     if not request.user.is_authenticated:
@@ -74,7 +105,38 @@ def cadastrar_equipamento(request):
             {"erro": "Método Inválido"},
             status=405
         )
-    dados = json.loads(request.body)
+    
+    try:
+        dados = json.loads(request.body)
+    except:
+        return JsonResponse(
+            {"erro": "JSON inválido"},
+            status=400
+        )
+    
+    if not dados.get("nome"):
+        return JsonResponse(
+        {"erro": "Nome obrigatório"},
+        status=400
+    )
+
+    if not dados.get("patrimonio"):
+        return JsonResponse(
+            {"erro": "Patrimônio obrigatório"},
+            status=400
+        )
+
+    if not dados.get("localizacao"):
+        return JsonResponse(
+            {"erro": "Localização obrigatória"},
+            status=400
+        )
+
+    if not dados.get("status"):
+        return JsonResponse(
+            {"erro": "Status obrigatório"},
+            status=400
+        )
 
     equipamento = Equipamento.objects.create(
         nome=dados["nome"],
@@ -151,6 +213,12 @@ def cadastrar_manutencao(request):
     equipamento_id = dados.get("equipamento_id")
     descricao = dados.get("descricao")
     data = dados.get("data")
+
+    if not equipamento_id:
+        return JsonResponse(
+            {"erro": "Equipamento obrigatório"},
+            status=400
+        )
 
     if not descricao:
         return JsonResponse(
@@ -241,6 +309,14 @@ def listar_manutencoes_equipamento(request, equipamento_id):
             status=405
         )
 
+    try:
+        Equipamento.objects.get(id=equipamento_id)
+    except Equipamento.DoesNotExist:
+        return JsonResponse(
+            {"erro": "Equipamento não encontrado"},
+            status=404
+        )
+
     manutencoes = Manutencao.objects.filter(
         equipamento_id=equipamento_id
     )
@@ -261,13 +337,164 @@ def listar_manutencoes_equipamento(request, equipamento_id):
     )
 
 
-
 @csrf_exempt
-def logout(request):
+def cadastrar_agendamento(request):
 
-    auth_logout(request)
 
-    return JsonResponse({
-        "success": True,
-        "message": "Logout realizado"
-    })
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Usuário não autenticado"
+            },
+            status=401
+        )
+
+    if request.method != "POST":
+        return JsonResponse(
+            {"erro": "Método inválido"},
+            status=405
+        )
+
+    try:
+        dados = json.loads(request.body)
+    except:
+        return JsonResponse(
+            {"erro": "JSON inválido"},
+            status=400
+        )
+
+    usuario_id = dados.get("usuario_id")
+    equipamento_id = dados.get("equipamento_id")
+    data = dados.get("data")
+
+    if not usuario_id:
+        return JsonResponse(
+            {"erro": "Usuário obrigatório"},
+            status=400
+        )
+
+    if not equipamento_id:
+        return JsonResponse(
+            {"erro": "Equipamento obrigatório"},
+            status=400
+        )
+
+    if not data:
+        return JsonResponse(
+            {"erro": "Data obrigatória"},
+            status=400
+        )
+
+    try:
+        usuario = Usuario.objects.get(
+            id=usuario_id
+        )
+    except Usuario.DoesNotExist:
+        return JsonResponse(
+            {"erro": "Usuário não encontrado"},
+            status=404
+        )
+
+    try:
+        equipamento = Equipamento.objects.get(
+            id=equipamento_id
+        )
+    except Equipamento.DoesNotExist:
+        return JsonResponse(
+            {"erro": "Equipamento não encontrado"},
+            status=404
+        )
+
+    agendamento = Agendamento.objects.create(
+        usuario=usuario,
+        equipamento=equipamento,
+        data=data
+    )
+
+    return JsonResponse(
+        {
+            "id": agendamento.id,
+            "usuario": usuario.nome,
+            "equipamento": equipamento.nome,
+            "data": str(agendamento.data)
+        },
+        status=201
+    )
+
+def listar_agendamentos(request):
+
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Usuário não autenticado"
+            },
+            status=401
+        )   
+
+    if request.method != "GET":
+        return JsonResponse(
+            {"erro": "Método inválido"},
+            status=405
+        )
+
+    agendamentos = Agendamento.objects.all()
+
+    dados = []
+
+    for agendamento in agendamentos:
+        dados.append({
+            "id": agendamento.id,
+            "usuario": agendamento.usuario.nome,
+            "equipamento": agendamento.equipamento.nome,
+            "data": str(agendamento.data)
+        })
+
+    return JsonResponse(
+        dados,
+        safe=False
+    )
+
+def listar_agendamentos_equipamento(request, equipamento_id):
+
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Usuário não autenticado"
+            },
+            status=401
+        )
+
+    if request.method != "GET":
+        return JsonResponse(
+            {"erro": "Método inválido"},
+            status=405
+        )
+    
+    try:
+        Equipamento.objects.get(id=equipamento_id)
+    except Equipamento.DoesNotExist:
+        return JsonResponse(
+            {"erro": "Equipamento não encontrado"},
+            status=404
+        )
+
+    agendamentos = Agendamento.objects.filter(
+        equipamento_id=equipamento_id
+    )
+
+    dados = []
+
+    for agendamento in agendamentos:
+        dados.append({
+            "id": agendamento.id,
+            "usuario": agendamento.usuario.nome,
+            "data": str(agendamento.data)
+        })
+
+    return JsonResponse(
+        dados,
+        safe=False
+    )
