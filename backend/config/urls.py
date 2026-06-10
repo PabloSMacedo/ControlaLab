@@ -20,21 +20,28 @@ from core.views import *
 
 
 urlpatterns = [
+
+#Endpoints - home e admin:    
     path('admin/', admin.site.urls),
     path('', home),
 
-#Endpoints - login
+#Endpoints - login:
     path("api/login/", login),
     path("api/logout/", logout),
 
-#Endpoints - Equipamentos
+#Endpoints - Equipamentos:
     path("api/equipamentos/cadastrar/", cadastrar_equipamento),
     path("api/equipamentos/", listar_equipamentos),
 
-#Endpoints - Manutenção
+#Endpoints - Manutenção:
     path("api/manutencoes/cadastrar/", cadastrar_manutencao),
     path("api/manutencoes/", listar_manutencoes),
     path("api/equipamentos/<int:equipamento_id>/manutencoes/", listar_manutencoes_equipamento),
+
+# Endpoints - Agendamentos:
+    path("api/agendamentos/cadastrar/", cadastrar_agendamento),
+    path("api/agendamentos/", listar_agendamentos),
+    path("api/equipamentos/<int:equipamento_id>/agendamentos/", listar_agendamentos_equipamento),
 
 ]
 
