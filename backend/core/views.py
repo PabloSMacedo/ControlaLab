@@ -89,6 +89,7 @@ def cadastrar_equipamento(request):
     })
 
 def listar_equipamentos(request):
+
     if not request.user.is_authenticated:
         return JsonResponse(
             {
@@ -124,6 +125,15 @@ def listar_equipamentos(request):
 @csrf_exempt
 def cadastrar_manutencao(request):
 
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Usuário não autenticado"
+            },
+            status=401
+    )
+
     if request.method != "POST":
         return JsonResponse(
             {"erro": "Método inválido"},
@@ -141,6 +151,18 @@ def cadastrar_manutencao(request):
     equipamento_id = dados.get("equipamento_id")
     descricao = dados.get("descricao")
     data = dados.get("data")
+
+    if not descricao:
+        return JsonResponse(
+        {"erro": "Descrição obrigatória"},
+        status=400
+    )
+
+    if not data:
+        return JsonResponse(
+        {"erro": "Data obrigatória"},
+        status=400
+    )
 
     try:
         equipamento = Equipamento.objects.get(
@@ -170,6 +192,15 @@ def cadastrar_manutencao(request):
 
 def listar_manutencoes(request):
 
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Usuário não autenticado"
+            },
+            status=401
+    )
+
     if request.method != "GET":
         return JsonResponse(
             {"erro": "Método inválido"},
@@ -193,10 +224,16 @@ def listar_manutencoes(request):
         safe=False
     )
 
-def listar_manutencoes_equipamento(
-    request,
-    equipamento_id
-):
+def listar_manutencoes_equipamento(request, equipamento_id):
+
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Usuário não autenticado"
+            },
+            status=401
+    )
 
     if request.method != "GET":
         return JsonResponse(
@@ -216,6 +253,7 @@ def listar_manutencoes_equipamento(
             "descricao": manutencao.descricao,
             "data": str(manutencao.data)
         })
+
 
     return JsonResponse(
         dados,

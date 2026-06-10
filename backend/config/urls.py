@@ -23,17 +23,18 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home),
 
-#abaixo esta o endpoint de login e logout.#
+#Endpoints - login
     path("api/login/", login),
     path("api/logout/", logout),
 
-#Abaixo esta o endpoint relacionado aos equipamentos.#
+#Endpoints - Equipamentos
     path("api/equipamentos/cadastrar/", cadastrar_equipamento),
     path("api/equipamentos/", listar_equipamentos),
+
 #Endpoints - Manutenção
-    path("api/manuntencoes/cadastrar/", cadastrar_manutencao),
-    path("api/manutencao/", listar_manutencoes),
-    path("api/equipamento/<int:equipamento_id>/manutencoes/", listar_manutencoes_equipamento),
+    path("api/manutencoes/cadastrar/", cadastrar_manutencao),
+    path("api/manutencoes/", listar_manutencoes),
+    path("api/equipamentos/<int:equipamento_id>/manutencoes/", listar_manutencoes_equipamento),
 
 ]
 
