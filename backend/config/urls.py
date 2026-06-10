@@ -30,6 +30,10 @@ urlpatterns = [
 #Abaixo esta o endpoint relacionado aos equipamentos.#
     path("api/equipamentos/cadastrar/", cadastrar_equipamento),
     path("api/equipamentos/", listar_equipamentos),
+#Endpoints - Manutenção
+    path("api/manuntencoes/cadastrar/", cadastrar_manutencao),
+    path("api/manutencao/", listar_manutencoes),
+    path("api/equipamento/<int:equipamento_id>/manutencoes/", listar_manutencoes_equipamento),
 
 ]
 

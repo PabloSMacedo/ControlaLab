@@ -122,6 +122,109 @@ def listar_equipamentos(request):
     )
 
 @csrf_exempt
+def cadastrar_manutencao(request):
+
+    if request.method != "POST":
+        return JsonResponse(
+            {"erro": "Método inválido"},
+            status=405
+        )
+
+    try:
+        dados = json.loads(request.body)
+    except:
+        return JsonResponse(
+            {"erro": "JSON inválido"},
+            status=400
+        )
+
+    equipamento_id = dados.get("equipamento_id")
+    descricao = dados.get("descricao")
+    data = dados.get("data")
+
+    try:
+        equipamento = Equipamento.objects.get(
+            id=equipamento_id
+        )
+    except Equipamento.DoesNotExist:
+        return JsonResponse(
+            {"erro": "Equipamento não encontrado"},
+            status=404
+        )
+
+    manutencao = Manutencao.objects.create(
+        equipamento=equipamento,
+        descricao=descricao,
+        data=data
+    )
+
+    return JsonResponse(
+        {
+            "id": manutencao.id,
+            "equipamento": equipamento.nome,
+            "descricao": manutencao.descricao,
+            "data": str(manutencao.data)
+        },
+        status=201
+    )
+
+def listar_manutencoes(request):
+
+    if request.method != "GET":
+        return JsonResponse(
+            {"erro": "Método inválido"},
+            status=405
+        )
+
+    manutencoes = Manutencao.objects.all()
+
+    dados = []
+
+    for manutencao in manutencoes:
+        dados.append({
+            "id": manutencao.id,
+            "equipamento": manutencao.equipamento.nome,
+            "descricao": manutencao.descricao,
+            "data": str(manutencao.data)
+        })
+
+    return JsonResponse(
+        dados,
+        safe=False
+    )
+
+def listar_manutencoes_equipamento(
+    request,
+    equipamento_id
+):
+
+    if request.method != "GET":
+        return JsonResponse(
+            {"erro": "Método inválido"},
+            status=405
+        )
+
+    manutencoes = Manutencao.objects.filter(
+        equipamento_id=equipamento_id
+    )
+
+    dados = []
+
+    for manutencao in manutencoes:
+        dados.append({
+            "id": manutencao.id,
+            "descricao": manutencao.descricao,
+            "data": str(manutencao.data)
+        })
+
+    return JsonResponse(
+        dados,
+        safe=False
+    )
+
+
+
+@csrf_exempt
 def logout(request):
 
     auth_logout(request)
