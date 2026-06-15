@@ -141,6 +141,8 @@ CSRF_TRUSTED_ORIGINS = [
     "https://pablosmacedo.github.io",
 ]
 
-CORS_ALLOW_HEADERS = list(default_headers)
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "x-controlalab-session",
+]
 
 CORS_ALLOW_METHODS = list(default_methods)

@@ -4,11 +4,14 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.contrib.auth import authenticate
+from django.contrib.auth import SESSION_KEY
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
+from django.contrib.sessions.models import Session
 from django.views.decorators.csrf import csrf_exempt
 from django.db import IntegrityError
 from django.db.models import Count, Q
+from django.utils import timezone
 from .models import *
 
 
@@ -28,15 +31,46 @@ def carregar_json(request):
         )
 
 
-def autenticar_requisicao(request):
-    if not request.user.is_authenticated:
-        return JsonResponse(
-            {
-                "success": False,
-                "message": "Usuário não autenticado"
-            },
-            status=401
+def usuario_autenticado(request):
+    if request.user.is_authenticated:
+        return request.user
+
+    session_key = request.headers.get("X-ControlaLab-Session")
+
+    if not session_key:
+        return None
+
+    try:
+        sessao = Session.objects.get(
+            session_key=session_key,
+            expire_date__gte=timezone.now()
         )
+        user_id = sessao.get_decoded().get(SESSION_KEY)
+
+        if not user_id:
+            return None
+
+        user = User.objects.get(id=user_id, is_active=True)
+    except Exception:
+        return None
+
+    request.user = user
+    return user
+
+
+def resposta_nao_autenticado():
+    return JsonResponse(
+        {
+            "success": False,
+            "message": "Usuário não autenticado"
+        },
+        status=401
+    )
+
+
+def autenticar_requisicao(request):
+    if not usuario_autenticado(request):
+        return resposta_nao_autenticado()
     return None
 
 
@@ -145,11 +179,13 @@ def login(request):
     if user:
 
         auth_login(request, user)
+        request.session.save()
 
         return JsonResponse({
             "success": True,
             "username": user.username,
-            "usuario": dados_usuario_logado(user)
+            "usuario": dados_usuario_logado(user),
+            "session_key": request.session.session_key
 
         })
     return JsonResponse(
@@ -169,15 +205,13 @@ def logout(request):
             status=405
         )
 
-    if not request.user.is_authenticated:
-        return JsonResponse(
-            {
-                "success": False,
-                "message": "Usuário não autenticado"
-            },
-            status=401
-        )
+    erro_autenticacao = autenticar_requisicao(request)
+    if erro_autenticacao:
+        return erro_autenticacao
 
+    session_key = request.headers.get("X-ControlaLab-Session")
+    if session_key:
+        Session.objects.filter(session_key=session_key).delete()
     auth_logout(request)
 
     return JsonResponse({
@@ -188,14 +222,9 @@ def logout(request):
 @csrf_exempt
 def cadastrar_equipamento(request):
 
-    if not request.user.is_authenticated:
-        return JsonResponse(
-            {
-                "success": False,
-                "message": "Usuário não autenticado"
-            },
-            status=401
-        )
+    erro_autenticacao = autenticar_requisicao(request)
+    if erro_autenticacao:
+        return erro_autenticacao
 
     if request.method != "POST":
         return JsonResponse(    
@@ -255,14 +284,9 @@ def cadastrar_equipamento(request):
 
 def listar_equipamentos(request):
 
-    if not request.user.is_authenticated:
-        return JsonResponse(
-            {
-                "success": False,
-                "message": "Usuário não autenticado"
-            },
-            status=401
-        )
+    erro_autenticacao = autenticar_requisicao(request)
+    if erro_autenticacao:
+        return erro_autenticacao
 
     if request.method != "GET":
         return JsonResponse(
@@ -386,14 +410,9 @@ def remover_equipamento(request, equipamento_id):
 @csrf_exempt
 def cadastrar_manutencao(request):
 
-    if not request.user.is_authenticated:
-        return JsonResponse(
-            {
-                "success": False,
-                "message": "Usuário não autenticado"
-            },
-            status=401
-    )
+    erro_autenticacao = autenticar_requisicao(request)
+    if erro_autenticacao:
+        return erro_autenticacao
 
     if request.method != "POST":
         return JsonResponse(
@@ -454,14 +473,9 @@ def cadastrar_manutencao(request):
 
 def listar_manutencoes(request):
 
-    if not request.user.is_authenticated:
-        return JsonResponse(
-            {
-                "success": False,
-                "message": "Usuário não autenticado"
-            },
-            status=401
-    )
+    erro_autenticacao = autenticar_requisicao(request)
+    if erro_autenticacao:
+        return erro_autenticacao
 
     if request.method != "GET":
         return JsonResponse(
@@ -483,14 +497,9 @@ def listar_manutencoes(request):
 
 def listar_manutencoes_equipamento(request, equipamento_id):
 
-    if not request.user.is_authenticated:
-        return JsonResponse(
-            {
-                "success": False,
-                "message": "Usuário não autenticado"
-            },
-            status=401
-    )
+    erro_autenticacao = autenticar_requisicao(request)
+    if erro_autenticacao:
+        return erro_autenticacao
 
     if request.method != "GET":
         return JsonResponse(
@@ -620,14 +629,9 @@ def remover_manutencao(request, manutencao_id):
 def cadastrar_agendamento(request):
 
 
-    if not request.user.is_authenticated:
-        return JsonResponse(
-            {
-                "success": False,
-                "message": "Usuário não autenticado"
-            },
-            status=401
-        )
+    erro_autenticacao = autenticar_requisicao(request)
+    if erro_autenticacao:
+        return erro_autenticacao
 
     if request.method != "POST":
         return JsonResponse(
@@ -698,14 +702,9 @@ def cadastrar_agendamento(request):
 
 def listar_agendamentos(request):
 
-    if not request.user.is_authenticated:
-        return JsonResponse(
-            {
-                "success": False,
-                "message": "Usuário não autenticado"
-            },
-            status=401
-        )   
+    erro_autenticacao = autenticar_requisicao(request)
+    if erro_autenticacao:
+        return erro_autenticacao
 
     if request.method != "GET":
         return JsonResponse(
@@ -727,14 +726,9 @@ def listar_agendamentos(request):
 
 def listar_agendamentos_equipamento(request, equipamento_id):
 
-    if not request.user.is_authenticated:
-        return JsonResponse(
-            {
-                "success": False,
-                "message": "Usuário não autenticado"
-            },
-            status=401
-        )
+    erro_autenticacao = autenticar_requisicao(request)
+    if erro_autenticacao:
+        return erro_autenticacao
 
     if request.method != "GET":
         return JsonResponse(

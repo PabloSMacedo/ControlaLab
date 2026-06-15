@@ -16,10 +16,25 @@ function loginUrl() {
     : `${import.meta.env.BASE_URL}login`;
 }
 
+function estaNaTelaLogin() {
+  return window.location.pathname.endsWith("/login")
+    || window.location.hash.startsWith("#/login");
+}
+
+function authHeaders() {
+  const sessionKey = obterSessao()?.session_key;
+
+  return sessionKey
+    ? { "X-ControlaLab-Session": sessionKey }
+    : {};
+}
+
 async function request(endpoint, options = {}) {
-  const headers = options.body
-    ? { "Content-Type": "application/json", ...options.headers }
-    : options.headers;
+  const headers = {
+    ...(options.body ? { "Content-Type": "application/json" } : {}),
+    ...authHeaders(),
+    ...options.headers,
+  };
 
   let response;
 
@@ -44,7 +59,7 @@ async function request(endpoint, options = {}) {
   if (!response.ok) {
     if (response.status === 401 && !endpoint.includes("login/")) {
       limparSessao();
-      if (!window.location.pathname.endsWith("/login")) {
+      if (!estaNaTelaLogin()) {
         window.location.href = loginUrl();
       }
     }
