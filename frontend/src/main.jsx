@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Equipamentos from './pages/Equipamentos.jsx'
@@ -19,10 +19,12 @@ const proteger = (pagina) => (
 const basename = import.meta.env.BASE_URL === '/'
   ? '/'
   : import.meta.env.BASE_URL.replace(/\/$/, '')
+const Router = import.meta.env.PROD ? HashRouter : BrowserRouter
+const routerProps = import.meta.env.PROD ? {} : { basename }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter basename={basename}>
+    <Router {...routerProps}>
       <Routes>
         {/* Rota inicial padrão joga para o Login */}
         <Route path="/" element={<Navigate to="/login" />} />
@@ -35,6 +37,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/agendamentos" element={proteger(<Agendamentos />)} />
         <Route path="/relatorios" element={proteger(<Relatorios />)} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   </React.StrictMode>,
 )

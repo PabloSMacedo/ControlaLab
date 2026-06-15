@@ -10,6 +10,12 @@ function backendIndisponivel() {
   return "Backend não disponível neste ambiente. Execute o backend localmente para usar as funcionalidades completas.";
 }
 
+function loginUrl() {
+  return import.meta.env.PROD
+    ? `${import.meta.env.BASE_URL}#/login`
+    : `${import.meta.env.BASE_URL}login`;
+}
+
 async function request(endpoint, options = {}) {
   const headers = options.body
     ? { "Content-Type": "application/json", ...options.headers }
@@ -39,7 +45,7 @@ async function request(endpoint, options = {}) {
     if (response.status === 401 && !endpoint.includes("login/")) {
       limparSessao();
       if (!window.location.pathname.endsWith("/login")) {
-        window.location.href = `${import.meta.env.BASE_URL}login`;
+        window.location.href = loginUrl();
       }
     }
 
