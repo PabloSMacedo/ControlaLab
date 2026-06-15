@@ -123,20 +123,19 @@ Exemplo:
 
 `python manage.py createsuperuser`
 
-Exemplo de preenchimento:
-
-`Username: admin`
-
-`Email: admin@controlalab.com`
-
-`Password: 123456`
-
 ---
 
-## Credenciais de Teste
+## Credencial de Teste para Avaliação
 
-Usuário: `admin`  
-Senha: `123456`
+Para criar ou atualizar uma credencial de teste para o professor, execute:
+
+`python manage.py criar_usuario_teste`
+
+Credencial gerada:
+
+Usuário: `professor`
+
+Senha: `ControlaLab@123`
 
 Acesso ao painel administrativo: `http://127.0.0.1:8000/admin`
 
