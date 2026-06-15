@@ -1,204 +1,254 @@
 # ControlaLab
 
-## Descrição
+Sistema acadêmico para gerenciamento de equipamentos laboratoriais, manutenções, agendamentos e relatórios.
 
-O ControlaLab é um sistema para gerenciamento de equipamentos laboratoriais e controle de manutenções preventivas e corretivas.
+O projeto foi desenvolvido para a entrega AV5. Ele possui backend em Django com endpoints JSON e frontend em React + Vite consumindo a API com sessão Django.
 
-O objetivo é substituir controles manuais realizados em planilhas, centralizando informações sobre equipamentos, históricos de manutenção e agendamentos.
+## Tecnologias
 
----
-
-## Integrantes
-
-- Pablo Macedo
-- Elionai
-- Eduardo
-- Elisa
-- Camile
-
----
-
-## Tecnologias Utilizadas
-
-### Backend
-- Python 3.14.5
+- Python 3.13+
 - Django 6.0.5
-- Psycopg 3.3.4
-
-### Frontend
-- React
-- Axios
-
-### Banco de Dados
-- PostgreSQL 17+
-
-### Versionamento
-- Git
-- GitHub
-
----
+- PostgreSQL
+- React 18
+- Vite
+- Node.js 22 LTS
+- GitHub Actions
+- GitHub Pages para publicação estática do frontend
 
 ## Funcionalidades
 
-### RF01 - Login e Controle de Acesso
-Permitir autenticação e gerenciamento de usuários.
+- Login com usuário ou e-mail
+- Logout
+- Rotas internas protegidas no frontend
+- CRUD de equipamentos
+- CRUD de manutenções
+- CRUD de agendamentos
+- Dashboard com dados reais
+- Relatórios JSON
+- Estados de loading, sucesso e erro
+- Busca, filtros e paginação nas telas principais
 
-### RF02 - Cadastro de Equipamentos
-Permitir cadastro e consulta dos equipamentos laboratoriais.
+## Pré-Requisitos
 
-### RF03 - Registro de Manutenções
-Permitir registro de manutenções preventivas e corretivas.
+- Git
+- Python instalado
+- PostgreSQL em execução
+- Node.js 22 LTS
+- npm
 
-### RF04 - Agendamento de Manutenções
-Permitir planejamento e acompanhamento das manutenções.
+## Como Rodar Localmente
 
-### RF05 - Relatórios
-Gerar relatórios de equipamentos e histórico de manutenções.
+Clone o projeto:
 
+```bash
+git clone https://github.com/PabloSMacedo/ControlaLab.git
+cd ControlaLab
+```
 
----
+Crie o banco PostgreSQL:
 
-## Pré-requisitos
+```sql
+CREATE DATABASE "controlaLab";
+```
 
-Instalar os seguintes softwares:
+Confira as credenciais do banco em `backend/config/settings.py` e ajuste para o seu ambiente local, se necessário.
 
-| Software   | Versão Recomendada |
-| ---------- | ------------------ |
-| Python     | 3.14.5             |
-| PostgreSQL | 17+                |
-| Git        | 2.54+              |
-| Node.js    | 22 LTS             |
-| npm        | 10+                |
+Instale e rode o backend:
 
----
+```bash
+cd backend
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py criar_usuario_teste
+python manage.py runserver
+```
 
-## Clonando o Projeto
+O backend ficará em:
 
-`git clone <URL_DO_REPOSITORIO>`
+```text
+http://127.0.0.1:8000
+```
 
-`cd ControlaLab`
+Em outro terminal, instale e rode o frontend:
 
----
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-## Configuração do Banco de Dados
+O frontend ficará em:
 
-Criar o banco PostgreSQL:
+```text
+http://127.0.0.1:5173
+```
 
-`CREATE DATABASE controlaLab;`
+## Credencial de Teste
 
-Configurar as credenciais no arquivo `backend/config/settings.py`.
+Gere a credencial com:
 
-Exemplo:
+```bash
+python manage.py criar_usuario_teste
+```
 
-`DATABASES = {`
-`    'default': {`
-`        'ENGINE': 'django.db.backends.postgresql',`
-`        'NAME': 'controlaLab',`
-`        'USER': 'postgres',`
-`        'PASSWORD': 'sua_senha',`
-`        'HOST': 'localhost',`
-`        'PORT': '5432',`
-`    }`
-`}`
+Use no login:
 
----
+```text
+Usuário: professor
+Senha: ControlaLab@123
+```
 
-## Instalação do Backend
+O comando cria ou atualiza esse usuário como administrador para facilitar a avaliação.
 
-`cd backend`
+## Configuração da API no Frontend
 
-`pip install -r requirements.txt`
+Por padrão, o frontend usa:
 
----
+```text
+http://127.0.0.1:8000/api
+```
 
-## Criação das Tabelas
+Para apontar para outro backend, crie `frontend/.env`:
 
-`python manage.py makemigrations`
+```env
+VITE_API_URL=http://127.0.0.1:8000/api
+```
 
-`python manage.py migrate`
+Se o backend estiver hospedado publicamente, use a URL pública da API.
 
----
+## Endpoints Principais
 
-## Criação do Usuário Administrador
+### Autenticação
 
-`python manage.py createsuperuser`
+- `POST /api/login/`
+- `POST /api/logout/`
 
----
+### Equipamentos
 
-## Credencial de Teste para Avaliação
+- `GET /api/equipamentos/`
+- `POST /api/equipamentos/cadastrar/`
+- `PUT /api/equipamentos/<id>/editar/`
+- `DELETE /api/equipamentos/<id>/remover/`
 
-Para criar ou atualizar uma credencial de teste para o professor, execute:
+### Manutenções
 
-`python manage.py criar_usuario_teste`
+- `GET /api/manutencoes/`
+- `POST /api/manutencoes/cadastrar/`
+- `GET /api/equipamentos/<id>/manutencoes/`
+- `PUT /api/manutencoes/<id>/editar/`
+- `DELETE /api/manutencoes/<id>/remover/`
 
-Credencial gerada:
+### Agendamentos
 
-Usuário: `professor`
+- `GET /api/agendamentos/`
+- `POST /api/agendamentos/cadastrar/`
+- `GET /api/equipamentos/<id>/agendamentos/`
+- `PUT /api/agendamentos/<id>/editar/`
+- `DELETE /api/agendamentos/<id>/remover/`
 
-Senha: `ControlaLab@123`
+### Relatórios
 
-Acesso ao painel administrativo: `http://127.0.0.1:8000/admin`
+- `GET /api/relatorios/resumo/`
+- `GET /api/relatorios/equipamentos/`
+- `GET /api/relatorios/manutencoes/`
+- `GET /api/relatorios/agendamentos/`
 
----
+## Testes Manuais no Postman
 
-## Execução do Backend
+Faça login:
 
-`python manage.py runserver`
+```json
+{
+  "login": "professor",
+  "password": "ControlaLab@123"
+}
+```
 
-A aplicação estará disponível em: `http://127.0.0.1:8000`
+Mantenha os cookies da resposta para testar os endpoints autenticados.
 
-Painel administrativo: `http://127.0.0.1:8000/admin`
+Testes sugeridos:
 
----
+- Login por usuário válido
+- Login por senha inválida
+- Logout autenticado
+- Cadastro, edição, listagem e remoção de equipamentos
+- Cadastro, edição, listagem e remoção de manutenções
+- Cadastro, edição, listagem e remoção de agendamentos
+- Relatórios autenticados
+- Acesso sem autenticação retornando `401`
+- Campos obrigatórios retornando `400`
+- IDs inexistentes retornando `404`
 
-## Instalação do Frontend
+## Validação Local
 
-`cd frontend`
+Backend:
 
-`npm install`
+```bash
+python backend/manage.py check
+```
 
----
+Frontend:
 
-## Execução do Frontend
+```bash
+cd frontend
+npm run build
+```
 
-`npm run dev`
+## GitHub Actions
 
----
+O projeto possui workflows para:
 
-## Dependências Python
+- Validar backend com `python backend/manage.py check`
+- Validar frontend com `npm ci` e `npm run build`
+- Publicar o frontend estático no GitHub Pages
 
-- asgiref==3.11.1
-- Django==6.0.5
-- psycopg==3.3.4
-- psycopg-binary==3.3.4
-- sqlparse==0.5.5
-- tzdata==2026.2
+O deploy do GitHub Pages publica somente o conteúdo gerado em `frontend/dist`.
 
----
+## GitHub Pages
 
-## Estratégia de Versionamento
+URL esperada:
 
-O projeto utiliza Git Flow simplificado.
+```text
+https://pablosmacedo.github.io/ControlaLab/
+```
 
-- `main`: versões estáveis.
-- `develop`: integração das funcionalidades.
-- `feature/*`: desenvolvimento de novas funcionalidades.
+O GitHub Pages hospeda apenas o frontend estático. Ele não executa Django nem PostgreSQL.
 
-As alterações passam por revisão antes da integração à branch principal.
+Para login e CRUD funcionarem no Pages, o backend também precisa estar rodando em uma URL acessível pelo navegador e o frontend precisa apontar para essa API via `VITE_API_URL`.
 
----
+Em desenvolvimento local, rode:
 
-## Estrutura do Projeto
+```text
+Frontend local: http://127.0.0.1:5173
+Backend local:  http://127.0.0.1:8000
+```
 
+## Critérios de Aceite AV5
+
+- `python manage.py check` deve passar
+- `npm run build` deve passar
+- Login deve funcionar no frontend
+- Logout deve funcionar no frontend
+- Dashboard deve usar dados reais
+- Equipamentos devem permitir listar, cadastrar, editar e remover
+- Manutenções devem permitir listar, cadastrar, editar e remover
+- Agendamentos devem permitir listar, cadastrar, editar e remover
+- Relatórios devem consumir endpoints reais
+- GitHub Actions devem validar backend e frontend
+- GitHub Pages deve publicar o frontend
+- As páginas principais não devem usar dados mockados quando existir backend correspondente
+- O navegador não deve apresentar erro de CORS no uso local configurado
+
+## Estrutura
+
+```text
 ControlaLab/
-- backend/
-- frontend/
-- docs/
-- .github/
-- README.md
-- LICENSE
-
----
+  backend/
+  frontend/
+  docs/
+  .github/workflows/
+  README.md
+```
 
 ## Licença
 
