@@ -1,205 +1,189 @@
 # ControlaLab
 
-## Descrição
+Sistema acadêmico para gerenciamento de equipamentos laboratoriais, manutenções, agendamentos e relatórios.
 
-O ControlaLab é um sistema para gerenciamento de equipamentos laboratoriais e controle de manutenções preventivas e corretivas.
+O projeto possui backend em Django com views simples retornando JSON e frontend em React + Vite consumindo a API com sessão Django.
 
-O objetivo é substituir controles manuais realizados em planilhas, centralizando informações sobre equipamentos, históricos de manutenção e agendamentos.
+## Tecnologias
 
----
-
-## Integrantes
-
-- Pablo Macedo
-- Elionai
-- Eduardo
-- Elisa
-- Camile
-
----
-
-## Tecnologias Utilizadas
-
-### Backend
-- Python 3.14.5
+- Python 3.13+
 - Django 6.0.5
-- Psycopg 3.3.4
-
-### Frontend
-- React
-- Axios
-
-### Banco de Dados
-- PostgreSQL 17+
-
-### Versionamento
-- Git
-- GitHub
-
----
-
-## Funcionalidades
-
-### RF01 - Login e Controle de Acesso
-Permitir autenticação e gerenciamento de usuários.
-
-### RF02 - Cadastro de Equipamentos
-Permitir cadastro e consulta dos equipamentos laboratoriais.
-
-### RF03 - Registro de Manutenções
-Permitir registro de manutenções preventivas e corretivas.
-
-### RF04 - Agendamento de Manutenções
-Permitir planejamento e acompanhamento das manutenções.
-
-### RF05 - Relatórios
-Gerar relatórios de equipamentos e histórico de manutenções.
-
-
----
+- PostgreSQL
+- React 18
+- Vite
+- Node.js 22 LTS
+- GitHub Actions
+- GitHub Pages para publicação estática do frontend
 
 ## Pré-requisitos
 
-Instalar os seguintes softwares:
+- Python instalado
+- PostgreSQL em execução
+- Node.js 22 LTS
+- npm
+- Git
 
-| Software   | Versão Recomendada |
-| ---------- | ------------------ |
-| Python     | 3.14.5             |
-| PostgreSQL | 17+                |
-| Git        | 2.54+              |
-| Node.js    | 22 LTS             |
-| npm        | 10+                |
+## Configuração do Banco
 
----
+Crie o banco PostgreSQL local:
 
-## Clonando o Projeto
+```sql
+CREATE DATABASE "controlaLab";
+```
 
-`git clone <URL_DO_REPOSITORIO>`
+Configure usuário, senha, host e porta em `backend/config/settings.py` conforme o seu ambiente local. Não publique senhas reais no README, no frontend ou em issues.
 
-`cd ControlaLab`
+## Rodar o Backend
 
----
+```bash
+cd backend
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+```
 
-## Configuração do Banco de Dados
+O backend ficará disponível em:
 
-Criar o banco PostgreSQL:
+```text
+http://127.0.0.1:8000
+```
 
-`CREATE DATABASE controlaLab;`
+Use o usuário criado no `createsuperuser` para acessar o sistema. Informe e-mail no cadastro do usuário se quiser testar login por e-mail.
 
-Configurar as credenciais no arquivo `backend/config/settings.py`.
+## Rodar o Frontend
 
-Exemplo:
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-`DATABASES = {`
-`    'default': {`
-`        'ENGINE': 'django.db.backends.postgresql',`
-`        'NAME': 'controlaLab',`
-`        'USER': 'postgres',`
-`        'PASSWORD': 'sua_senha',`
-`        'HOST': 'localhost',`
-`        'PORT': '5432',`
-`    }`
-`}`
+O frontend local usa por padrão:
 
----
+```text
+http://127.0.0.1:8000/api
+```
 
-## Instalação do Backend
+Para apontar para outra API, crie um `.env` dentro de `frontend`:
 
-`cd backend`
+```env
+VITE_API_URL=http://127.0.0.1:8000/api
+```
 
-`pip install -r requirements.txt`
+## Funcionalidades da AV5
 
----
+- Login com usuário ou e-mail
+- Logout com limpeza da sessão local
+- Rotas internas protegidas no frontend
+- CRUD de equipamentos
+- CRUD de manutenções
+- CRUD de agendamentos
+- Dashboard com dados reais
+- Relatórios JSON com resumo, equipamentos, manutenções e agendamentos
+- Tratamento de loading, sucesso e erro nas telas principais
 
-## Criação das Tabelas
+## Endpoints Principais
 
-`python manage.py makemigrations`
+### Autenticação
 
-`python manage.py migrate`
+- `POST /api/login/`
+- `POST /api/logout/`
 
----
+### Equipamentos
 
-## Criação do Usuário Administrador
+- `GET /api/equipamentos/`
+- `POST /api/equipamentos/cadastrar/`
+- `PUT /api/equipamentos/<id>/editar/`
+- `DELETE /api/equipamentos/<id>/remover/`
 
-`python manage.py createsuperuser`
+### Manutenções
 
-Exemplo de preenchimento:
+- `GET /api/manutencoes/`
+- `POST /api/manutencoes/cadastrar/`
+- `GET /api/equipamentos/<id>/manutencoes/`
+- `PUT /api/manutencoes/<id>/editar/`
+- `DELETE /api/manutencoes/<id>/remover/`
 
-`Username: admin`
+### Agendamentos
 
-`Email: admin@controlalab.com`
+- `GET /api/agendamentos/`
+- `POST /api/agendamentos/cadastrar/`
+- `GET /api/equipamentos/<id>/agendamentos/`
+- `PUT /api/agendamentos/<id>/editar/`
+- `DELETE /api/agendamentos/<id>/remover/`
 
-`Password: 123456`
+### Relatórios
 
----
+- `GET /api/relatorios/resumo/`
+- `GET /api/relatorios/equipamentos/`
+- `GET /api/relatorios/manutencoes/`
+- `GET /api/relatorios/agendamentos/`
 
-## Credenciais de Teste
+## Testes Manuais no Postman
 
-Usuário: `admin`  
-Senha: `123456`
+1. Faça `POST /api/login/` com:
 
-Acesso ao painel administrativo: `http://127.0.0.1:8000/admin`
+```json
+{
+  "login": "seu_usuario_ou_email",
+  "password": "sua_senha"
+}
+```
 
----
+2. Mantenha os cookies da resposta para testar endpoints autenticados.
+3. Teste campos obrigatórios vazios.
+4. Teste IDs inexistentes em edição, remoção e listagens por equipamento.
+5. Teste `POST /api/logout/` com e sem sessão.
+6. Teste os quatro endpoints de relatórios autenticado e sem autenticação.
 
-## Execução do Backend
+## Validação Local
 
-`python manage.py runserver`
+Backend:
 
-A aplicação estará disponível em: `http://127.0.0.1:8000`
+```bash
+python backend/manage.py check
+```
 
-Painel administrativo: `http://127.0.0.1:8000/admin`
+Frontend:
 
----
+```bash
+cd frontend
+npm run build
+```
 
-## Instalação do Frontend
+## GitHub Actions
 
-`cd frontend`
+O projeto possui workflows para:
 
-`npm install`
+- Validar o backend com `python backend/manage.py check`
+- Validar o frontend com `npm ci` e `npm run build`
+- Publicar o frontend estático no GitHub Pages
 
----
+Os workflows rodam em `push` e `pull_request` para `main` e `develop`, exceto o deploy do Pages, que publica a partir da `main` ou por execução manual.
 
-## Execução do Frontend
+## GitHub Pages
 
-`npm run dev`
+O GitHub Pages hospeda somente o frontend estático gerado em `frontend/dist`.
 
----
+Ele não executa o backend Django. Em ambiente Pages, se a API local não estiver disponível, o frontend exibe uma mensagem amigável orientando a executar o backend localmente.
 
-## Dependências Python
+O Vite usa base de produção:
 
-- asgiref==3.11.1
-- Django==6.0.5
-- psycopg==3.3.4
-- psycopg-binary==3.3.4
-- sqlparse==0.5.5
-- tzdata==2026.2
+```text
+/ControlaLab/
+```
 
----
+## Estrutura
 
-## Estratégia de Versionamento
-
-O projeto utiliza Git Flow simplificado.
-
-- `main`: versões estáveis.
-- `develop`: integração das funcionalidades.
-- `feature/*`: desenvolvimento de novas funcionalidades.
-
-As alterações passam por revisão antes da integração à branch principal.
-
----
-
-## Estrutura do Projeto
-
+```text
 ControlaLab/
-- backend/
-- frontend/
-- docs/
-- .github/
-- README.md
-- LICENSE
-
----
+  backend/
+  frontend/
+  docs/
+  .github/workflows/
+  README.md
+```
 
 ## Licença
 
