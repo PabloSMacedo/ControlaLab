@@ -1,18 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Layout from '../components/Layout.jsx';
 import Pagination from '../components/Pagination.jsx';
-import { apiService } from '../services/api';
+import { apiService, obterSessao } from '../services/api';
 
-const manutencaoInicial = {
+const agendamentoInicial = {
   equipamento_id: '',
-  descricao: '',
   data: '',
 };
 
-export default function Manutencoes() {
+export default function Agendamentos() {
   const [equipamentos, setEquipamentos] = useState([]);
-  const [manutencoes, setManutencoes] = useState([]);
-  const [form, setForm] = useState(manutencaoInicial);
+  const [agendamentos, setAgendamentos] = useState([]);
+  const [form, setForm] = useState(agendamentoInicial);
   const [editando, setEditando] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -23,46 +22,49 @@ export default function Manutencoes() {
   const [pagina, setPagina] = useState(1);
   const [itensPorPagina, setItensPorPagina] = useState(5);
 
+  const sessao = obterSessao();
+  const usuarioId = sessao?.usuario?.id;
+
   useEffect(() => {
     carregarDados();
   }, []);
 
   useEffect(() => {
     setPagina(1);
-  }, [busca, equipamentoFiltro, itensPorPagina, manutencoes.length]);
+  }, [busca, equipamentoFiltro, itensPorPagina, agendamentos.length]);
 
-  const manutencoesFiltradas = useMemo(() => {
+  const agendamentosFiltrados = useMemo(() => {
     const termo = busca.trim().toLowerCase();
 
-    return manutencoes.filter((manutencao) => {
-      const combinaBusca = [manutencao.equipamento, manutencao.descricao, manutencao.data]
+    return agendamentos.filter((agendamento) => {
+      const combinaBusca = [agendamento.usuario, agendamento.equipamento, agendamento.data]
         .join(' ')
         .toLowerCase()
         .includes(termo);
 
-      const combinaEquipamento = equipamentoFiltro === 'Todos' || String(manutencao.equipamento_id) === equipamentoFiltro;
+      const combinaEquipamento = equipamentoFiltro === 'Todos' || String(agendamento.equipamento_id) === equipamentoFiltro;
 
       return combinaBusca && combinaEquipamento;
     });
-  }, [busca, equipamentoFiltro, manutencoes]);
+  }, [busca, equipamentoFiltro, agendamentos]);
 
-  const manutencoesPagina = useMemo(() => {
+  const agendamentosPagina = useMemo(() => {
     const inicio = (pagina - 1) * itensPorPagina;
-    return manutencoesFiltradas.slice(inicio, inicio + itensPorPagina);
-  }, [manutencoesFiltradas, pagina, itensPorPagina]);
+    return agendamentosFiltrados.slice(inicio, inicio + itensPorPagina);
+  }, [agendamentosFiltrados, pagina, itensPorPagina]);
 
   const carregarDados = async () => {
     setCarregando(true);
     setErro('');
 
     try {
-      const [listaEquipamentos, listaManutencoes] = await Promise.all([
+      const [listaEquipamentos, listaAgendamentos] = await Promise.all([
         apiService.get('equipamentos/'),
-        apiService.get('manutencoes/'),
+        apiService.get('agendamentos/'),
       ]);
 
       setEquipamentos(listaEquipamentos);
-      setManutencoes(listaManutencoes);
+      setAgendamentos(listaAgendamentos);
     } catch (error) {
       setErro(error.message);
     } finally {
@@ -75,23 +77,35 @@ export default function Manutencoes() {
   };
 
   const limparFormulario = () => {
-    setForm(manutencaoInicial);
+    setForm(agendamentoInicial);
     setEditando(null);
   };
 
-  const salvarManutencao = async (event) => {
+  const payload = () => ({
+    usuario_id: usuarioId,
+    equipamento_id: form.equipamento_id,
+    data: form.data,
+  });
+
+  const salvarAgendamento = async (event) => {
     event.preventDefault();
     setMensagem('');
     setErro('');
+
+    if (!usuarioId) {
+      setErro('Usuário da sessão não encontrado. Faça login novamente.');
+      return;
+    }
+
     setSalvando(true);
 
     try {
       if (editando) {
-        await apiService.put(`manutencoes/${editando}/editar/`, form);
-        setMensagem('Manutenção atualizada com sucesso.');
+        await apiService.put(`agendamentos/${editando}/editar/`, payload());
+        setMensagem('Agendamento atualizado com sucesso.');
       } else {
-        await apiService.post('manutencoes/cadastrar/', form);
-        setMensagem('Manutenção cadastrada com sucesso.');
+        await apiService.post('agendamentos/cadastrar/', payload());
+        setMensagem('Agendamento cadastrado com sucesso.');
       }
 
       limparFormulario();
@@ -103,20 +117,19 @@ export default function Manutencoes() {
     }
   };
 
-  const iniciarEdicao = (manutencao) => {
-    setEditando(manutencao.id);
+  const iniciarEdicao = (agendamento) => {
+    setEditando(agendamento.id);
     setForm({
-      equipamento_id: String(manutencao.equipamento_id),
-      descricao: manutencao.descricao,
-      data: manutencao.data,
+      equipamento_id: String(agendamento.equipamento_id),
+      data: agendamento.data,
     });
     setMensagem('');
     setErro('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const removerManutencao = async (manutencao) => {
-    if (!confirm(`Remover a manutenção #${manutencao.id}?`)) {
+  const removerAgendamento = async (agendamento) => {
+    if (!confirm(`Remover o agendamento #${agendamento.id}?`)) {
       return;
     }
 
@@ -124,8 +137,8 @@ export default function Manutencoes() {
     setErro('');
 
     try {
-      await apiService.delete(`manutencoes/${manutencao.id}/remover/`);
-      setMensagem('Manutenção removida com sucesso.');
+      await apiService.delete(`agendamentos/${agendamento.id}/remover/`);
+      setMensagem('Agendamento removido com sucesso.');
       await carregarDados();
     } catch (error) {
       setErro(error.message);
@@ -133,24 +146,24 @@ export default function Manutencoes() {
   };
 
   const mudarPagina = (novaPagina) => {
-    const totalPaginas = Math.max(1, Math.ceil(manutencoesFiltradas.length / itensPorPagina));
+    const totalPaginas = Math.max(1, Math.ceil(agendamentosFiltrados.length / itensPorPagina));
     setPagina(Math.min(Math.max(novaPagina, 1), totalPaginas));
   };
 
   return (
     <Layout>
       <header style={headerStyle}>
-        <h1 style={{ color: 'var(--senai-blue-dark)', margin: 0 }}>🔧 Controle de Manutenções</h1>
-        <p style={{ color: '#666', margin: '5px 0 0 0' }}>Acompanhe os reparos preventivos e corretivos dos equipamentos.</p>
+        <h1 style={{ color: 'var(--senai-blue-dark)', margin: 0 }}>📅 Agendamentos de Equipamentos</h1>
+        <p style={{ color: '#666', margin: '5px 0 0 0' }}>Gerencie as reservas para utilização dos recursos laboratoriais.</p>
       </header>
 
       {mensagem && <p style={successStyle}>{mensagem}</p>}
       {erro && <p style={errorStyle}>{erro}</p>}
 
       <section className="page-panel" style={{ padding: '20px', marginBottom: '20px' }}>
-        <h2 className="section-heading">{editando ? 'Editar manutenção' : 'Nova manutenção'}</h2>
+        <h2 className="section-heading">{editando ? 'Editar agendamento' : 'Novo agendamento'}</h2>
 
-        <form onSubmit={salvarManutencao} style={formStyle}>
+        <form onSubmit={salvarAgendamento} style={formStyle}>
           <label className="field-label">
             Equipamento
             <select required style={inputStyle} value={form.equipamento_id} onChange={(event) => atualizarCampo('equipamento_id', event.target.value)}>
@@ -164,10 +177,6 @@ export default function Manutencoes() {
             Data
             <input required type="date" style={inputStyle} value={form.data} onChange={(event) => atualizarCampo('data', event.target.value)} />
           </label>
-          <label className="field-label">
-            Descrição
-            <textarea required style={{ ...inputStyle, minHeight: '42px', resize: 'vertical' }} value={form.descricao} onChange={(event) => atualizarCampo('descricao', event.target.value)} />
-          </label>
           <div className="form-actions">
             <button type="submit" disabled={salvando} style={primaryButtonStyle}>{salvando ? 'Salvando...' : editando ? 'Salvar' : 'Cadastrar'}</button>
             {editando && <button type="button" onClick={limparFormulario} style={secondaryButtonStyle}>Cancelar</button>}
@@ -179,7 +188,7 @@ export default function Manutencoes() {
         <div className="data-toolbar">
           <label className="field-label">
             Buscar
-            <input style={inputStyle} placeholder="Equipamento, descrição ou data" value={busca} onChange={(event) => setBusca(event.target.value)} />
+            <input style={inputStyle} placeholder="Usuário, equipamento ou data" value={busca} onChange={(event) => setBusca(event.target.value)} />
           </label>
           <label className="field-label">
             Equipamento
@@ -190,39 +199,39 @@ export default function Manutencoes() {
               ))}
             </select>
           </label>
-          <span className="result-count">{manutencoesFiltradas.length} resultado(s)</span>
+          <span className="result-count">{agendamentosFiltrados.length} resultado(s)</span>
         </div>
 
         {carregando ? (
-          <p style={{ color: '#555' }}>Carregando manutenções...</p>
+          <p style={{ color: '#555' }}>Carregando agendamentos...</p>
         ) : (
           <>
             <table style={tableStyle}>
               <thead>
                 <tr style={theadRowStyle}>
-                  <th style={cellStyle}>Cód.</th>
+                  <th style={cellStyle}>ID</th>
+                  <th style={cellStyle}>Usuário</th>
                   <th style={cellStyle}>Equipamento</th>
-                  <th style={cellStyle}>Descrição</th>
                   <th style={cellStyle}>Data</th>
                   <th style={cellStyle}>Ações</th>
                 </tr>
               </thead>
               <tbody>
-                {manutencoesPagina.length === 0 && (
+                {agendamentosPagina.length === 0 && (
                   <tr>
-                    <td colSpan="5" style={emptyStyle}>Nenhuma manutenção encontrada.</td>
+                    <td colSpan="5" style={emptyStyle}>Nenhum agendamento encontrado.</td>
                   </tr>
                 )}
 
-                {manutencoesPagina.map((manutencao) => (
-                  <tr key={manutencao.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                    <td style={cellStyle}>#{manutencao.id}</td>
-                    <td style={{ ...cellStyle, fontWeight: 'bold', color: 'var(--senai-blue-dark)' }}>{manutencao.equipamento}</td>
-                    <td style={cellStyle}>{manutencao.descricao}</td>
-                    <td style={{ ...cellStyle, color: 'var(--senai-blue)', fontWeight: '600' }}>{manutencao.data}</td>
+                {agendamentosPagina.map((agendamento) => (
+                  <tr key={agendamento.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                    <td style={cellStyle}>#{agendamento.id}</td>
+                    <td style={{ ...cellStyle, fontWeight: 'bold', color: 'var(--senai-blue-dark)' }}>{agendamento.usuario}</td>
+                    <td style={cellStyle}>{agendamento.equipamento}</td>
+                    <td style={{ ...cellStyle, color: 'var(--senai-blue)', fontWeight: '600' }}>{agendamento.data}</td>
                     <td style={{ ...cellStyle, display: 'flex', gap: '8px' }}>
-                      <button type="button" onClick={() => iniciarEdicao(manutencao)} style={secondaryButtonStyle}>Editar</button>
-                      <button type="button" onClick={() => removerManutencao(manutencao)} style={dangerButtonStyle}>Remover</button>
+                      <button type="button" onClick={() => iniciarEdicao(agendamento)} style={secondaryButtonStyle}>Editar</button>
+                      <button type="button" onClick={() => removerAgendamento(agendamento)} style={dangerButtonStyle}>Remover</button>
                     </td>
                   </tr>
                 ))}
@@ -232,7 +241,7 @@ export default function Manutencoes() {
             <Pagination
               page={pagina}
               pageSize={itensPorPagina}
-              totalItems={manutencoesFiltradas.length}
+              totalItems={agendamentosFiltrados.length}
               onPageChange={mudarPagina}
               onPageSizeChange={setItensPorPagina}
             />
@@ -260,7 +269,6 @@ const inputStyle = {
   borderRadius: '8px',
   border: '1px solid #d1d5db',
   fontSize: '14px',
-  fontFamily: 'Arial, sans-serif',
 };
 
 const tableWrapStyle = {

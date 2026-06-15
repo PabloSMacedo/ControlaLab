@@ -20,16 +20,40 @@ from core.views import *
 
 
 urlpatterns = [
+
+#Endpoints - home e admin:    
     path('admin/', admin.site.urls),
     path('', home),
 
-#abaixo esta o endpoint de login e logout.#
+#Endpoints - login:
     path("api/login/", login),
     path("api/logout/", logout),
 
-#Abaixo esta o endpoint relacionado aos equipamentos.#
+#Endpoints - Equipamentos:
     path("api/equipamentos/cadastrar/", cadastrar_equipamento),
     path("api/equipamentos/", listar_equipamentos),
+    path("api/equipamentos/<int:equipamento_id>/editar/", editar_equipamento),
+    path("api/equipamentos/<int:equipamento_id>/remover/", remover_equipamento),
+
+#Endpoints - Manutenção:
+    path("api/manutencoes/cadastrar/", cadastrar_manutencao),
+    path("api/manutencoes/", listar_manutencoes),
+    path("api/equipamentos/<int:equipamento_id>/manutencoes/", listar_manutencoes_equipamento),
+    path("api/manutencoes/<int:manutencao_id>/editar/", editar_manutencao),
+    path("api/manutencoes/<int:manutencao_id>/remover/", remover_manutencao),
+
+# Endpoints - Agendamentos:
+    path("api/agendamentos/cadastrar/", cadastrar_agendamento),
+    path("api/agendamentos/", listar_agendamentos),
+    path("api/equipamentos/<int:equipamento_id>/agendamentos/", listar_agendamentos_equipamento),
+    path("api/agendamentos/<int:agendamento_id>/editar/", editar_agendamento),
+    path("api/agendamentos/<int:agendamento_id>/remover/", remover_agendamento),
+
+# Endpoints - Relatórios:
+    path("api/relatorios/equipamentos/", relatorio_equipamentos),
+    path("api/relatorios/manutencoes/", relatorio_manutencoes),
+    path("api/relatorios/agendamentos/", relatorio_agendamentos),
+    path("api/relatorios/resumo/", relatorio_resumo),
 
 ]
 
